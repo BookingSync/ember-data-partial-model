@@ -3,20 +3,20 @@ import DS from 'ember-data';
 
 export default DS.RESTSerializer.extend({
   attrs: {
-    user_extended: { serialize: false }
+    extended: { serialize: false }
   },
 
   // Allow to support responses with {}
   normalize: function(store, type, hash) {
     var toReturn = this._super(...arguments);
-    toReturn.user_extended = toReturn.id;
+    toReturn.extended = toReturn.id;
     return toReturn;
   },
 
   serialize: function(snapshot, options) {
     var ourHash = this._super(...arguments);
     var extendedData = {};
-    var extended = snapshot.belongsTo('user_extended');
+    var extended = snapshot.belongsTo('extended');
     if (extended) {
       extendedData = extended.record.serialize();
     }
