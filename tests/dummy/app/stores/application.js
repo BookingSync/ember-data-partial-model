@@ -7,11 +7,11 @@ export default DS.Store.extend({
 
   modelFor: function(key) {
     var factory = this._super(key);
-    if (key === 'user') { // factory._isCompoundModel) {
-      var compoundKey = this.generateExtendedKey(key);
-      if (!this.container.has('model:' + compoundKey)) {
+    if (factory._isPartialModel === true) {
+      var extendedKey = this.generateExtendedKey(key);
+      if (!this.container.has('model:' + extendedKey)) {
         var extendedModel = this.generateExtendedModel(factory);
-        this.container.register("model:" + compoundKey, extendedModel);
+        this.container.register("model:" + extendedKey, extendedModel);
       }
     }
     return factory;
