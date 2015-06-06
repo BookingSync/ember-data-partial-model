@@ -1,4 +1,7 @@
 import DS from 'ember-data';
+import Ember from 'ember';
+const { computed, on, A: emberA, RSVP: { hash } } = Ember;
+const { alias } = computed;
 
 function partial(modelName, prop, hash) {
   return DS.belongsTo(`${modelName}-${prop}`, {
@@ -7,20 +10,33 @@ function partial(modelName, prop, hash) {
 }
 
 let PartialModel = DS.Model.extend({
-  _setupAliasesForPartials: Ember.on('init', function() {
+  partialDescriptors() {
+    let descriptors = emberA();
     this.constructor.eachRelationship((relationshipKey, descriptor) => {
-      let options = descriptor.options
-      if (options.isPartialExtension === true) {
-        Object.keys(options.classHash).forEach(attr => {
-          Ember.defineProperty(this, attr, Ember.computed.alias(`${relationshipKey}.${attr}`));
-        });
+      if (descriptor.options.isPartialExtension) {
+        descriptors.push(descriptor);
       }
+    });
+    return descriptors;
+  },
+
+  _setupAliasesForPartials: on('init', function() {
+    this.partialDescriptors().forEach(descriptor => {
+      Object.keys(descriptor.options.classHash).forEach(attr => {
+        Ember.defineProperty(this, attr, alias(`${descriptor.key}.${attr}`));
+      });
     })
-  })
+  }),
+
+  loadPartials() {
+    return new hash(this.getProperties(...this.partialDescriptors().mapBy('key'))).then(() => {
+      return this;
+    });
+  }
 });
 
 PartialModel.reopenClass({
   _isPartialModel: true
 });
 
-export {PartialModel, partial};
+export { PartialModel, partial };
