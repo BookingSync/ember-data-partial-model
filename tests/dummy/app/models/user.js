@@ -1,8 +1,9 @@
-import {PartialModel, extended} from './partial-model';
+import { PartialModel, partial } from './partial-model';
+const { attr } = DS;
 
 export default PartialModel.extend({
-  name: DS.attr(),
-  extended: extended({
-    twitter: DS.attr()
-  }),
+  name: attr(),
+  extended: partial('user', 'extended', {
+    twitter: attr()
+  })
 });
