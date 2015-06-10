@@ -33,7 +33,8 @@ export default DS.Store.extend({
               return this._super(partialExtensionSerializerName);
             }
           });
-          this.container.register(`serializer:${partialExtensionSerializerName}`, partialExtensionSerializer);
+          this.container.register(`serializer:${partialExtensionSerializerName}`,
+            partialExtensionSerializer);
         }
       }
     });
