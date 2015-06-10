@@ -14,6 +14,7 @@ export default DS.RESTSerializer.extend({
   },
 
   serialize: function(snapshot, options) {
+    // Remove partial model from here instead of attrs serialize: false
     var ourHash = this._super(...arguments);
     var extendedData = {};
     var extended = snapshot.belongsTo('extended');
