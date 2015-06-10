@@ -1,4 +1,4 @@
-import { PartialModel, partial } from './partial-model';
+import { PartialModel, partial } from 'ember-data-partial-model/utils/model';
 const { attr } = DS;
 
 export default PartialModel.extend({

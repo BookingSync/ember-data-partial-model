@@ -12,7 +12,7 @@ export default Mixin.create({
     return descriptors;
   },
 
-  normalize: function(typeClass, hash, prop) {
+  normalize: function(typeClass /*, hash, prop */) {
     let toReturn = this._super(...arguments);
     this.partialDescriptors(typeClass).forEach(descriptor => {
       toReturn[descriptor.key] = toReturn.id;
@@ -20,7 +20,7 @@ export default Mixin.create({
     return toReturn;
   },
 
-  serialize: function(snapshot, options) {
+  serialize: function(snapshot /*, options */) {
     let ourHash = this._super(...arguments);
 
     this.partialDescriptors(snapshot).forEach(descriptor => {

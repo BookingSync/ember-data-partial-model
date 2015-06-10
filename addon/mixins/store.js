@@ -1,6 +1,7 @@
-import DS from 'ember-data';
+import Ember from 'ember';
+const { Mixin } = Ember;
 
-export default DS.Store.extend({
+export default Mixin.create({
   modelFor: function(key) {
     let factory = this._super(key);
     if (factory._isPartialModel === true) {
