@@ -25,7 +25,7 @@ let PartialModel = DS.Model.extend({
       Object.keys(descriptor.options.classHash).forEach(attr => {
         Ember.defineProperty(this, attr, alias(`${descriptor.key}.${attr}`));
       });
-    })
+    });
   }),
 
   loadPartials() {

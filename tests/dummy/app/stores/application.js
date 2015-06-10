@@ -15,7 +15,8 @@ export default DS.Store.extend({
       let partialExtensionModelName = `${factoryName}-${relationshipKey}`;
       if (descriptor.options.isPartialExtension === true) {
         if (!this.container.has(`model:${partialExtensionModelName}`)) {
-          let partialExtensionModel = DS.Model.extend(descriptor.options.classHash);
+          let partialExtensionModel = DS.Model.extend(descriptor.options.classHash)
+            .reopenClass({ _extendPartialModel: factoryName });
           this.container.register(`model:${partialExtensionModelName}`, partialExtensionModel);
         }
       }

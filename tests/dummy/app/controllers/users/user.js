@@ -7,7 +7,7 @@ export default Ember.Controller.extend({
         .then(user => user.save())
         .catch(error => {
           console.log('TODO: handle errors');
-        })
+        });
     }
   }
 });

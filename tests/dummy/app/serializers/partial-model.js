@@ -1,5 +1,5 @@
 import Ember from 'ember';
-const { Mixin, A: emberA, get } = Ember;
+const { Mixin, A: emberA } = Ember;
 
 export default Mixin.create({
   partialDescriptors: function(typeClass) {
@@ -34,7 +34,7 @@ export default Mixin.create({
       if (partial) {
         partialData = partial.record.serialize();
       }
-      Ember.merge(ourHash, partialData)
+      Ember.merge(ourHash, partialData);
     });
 
     return ourHash;
