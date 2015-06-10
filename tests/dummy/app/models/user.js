@@ -1,6 +1,9 @@
-import DS from 'ember-data';
+import { PartialModel, partial } from './partial-model';
+const { attr } = DS;
 
-export default DS.Model.extend({
-  user_extended: DS.belongsTo('user_extended', { async: true }),
-  name: DS.attr()
+export default PartialModel.extend({
+  name: attr(),
+  extended: partial('user', 'extended', {
+    twitter: attr()
+  })
 });

@@ -2,8 +2,12 @@ import Ember from 'ember';
 
 export default Ember.Controller.extend({
   actions: {
-    save: function(user) {
-      user.save();
+    save(user) {
+      user.loadPartials()
+        .then(user => user.save())
+        .catch(error => {
+          console.log('TODO: handle errors');
+        })
     }
   }
 });
