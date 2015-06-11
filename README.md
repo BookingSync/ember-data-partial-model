@@ -2,13 +2,13 @@
 
 This addon adds support for partial records to Ember Data. Lets say your api for
 `/users` returns a shallow model like:
-```
+```js
 [ { id:1, name: 'BMac'}, {id:2, name:'Seb'}]
 ```
 
 but `/users/1` returns a detailed model
 
-```
+```js
 { id:1,
   name: 'BMac'
   twitter: 'seb'
@@ -16,7 +16,7 @@ but `/users/1` returns a detailed model
 ```
 
 You can use this addon to define your User model as:
-```
+```js
 import { PartialModel, partial } from 'ember-data-partial-model/utils/model';
 const { attr } = DS;
 
@@ -32,7 +32,7 @@ This addon will modify your application adapter/serializer, so that accessing `u
 or any of the extended properties will trigger a request for the detailed model.
 For example:
 
-```
+```js
 let users = await store.find('user'); //goes to /users
 let user = users.objectAt(1);
 
@@ -42,7 +42,7 @@ user.get('twitter') //goes to /users/1, but is just an alias, so returns null in
 
 Thus you are safe from race conditions when rendering users, even if you have not loaded the full user
 In your template you can do
-```
+```js
 {{user.twitter}}
 ```
 and it will populate once the full user is loaded
