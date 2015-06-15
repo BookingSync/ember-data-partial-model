@@ -1,0 +1,1 @@
+export { default } from 'ember-data-partial-model/acceptance-tests/partial-model';
