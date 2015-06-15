@@ -1,9 +1,18 @@
 
 <ul>
-  {{#each user in model}}
+  {{#each user in users}}
     <li>
     {{#link-to 'users.user' user}}{{ user.name }}{{/link-to}}
     </li>
   {{/each}}
 </ul>
 {{outlet}}
+
+<p>
+  New user name: {{input value=newUser.name class="new-user-name" }}
+</p>
+<p>
+  New user Twitter handle: {{input value=newUser.twitter class="new-user-twitter-handle" }}
+</p>
+
+<button {{action "save" newUser }} class="save-new-user-btn">save</button>

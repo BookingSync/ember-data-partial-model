@@ -9,7 +9,14 @@ export default function() {
       user: db.users_extended.find(id)
     };
   });
-  // this.post('/users');
+  this.post('/users', function(db, request) {
+    var attrs = JSON.parse(request.requestBody);
+    var user = db.users.insert(attrs);
+    var userExtended = db.users_extended.insert(attrs);
+    return {
+      user: userExtended
+    };
+  });
   // this.put('/users');
   this.put('/users/:id', function(db, request) {
     var id = request.params.id;
