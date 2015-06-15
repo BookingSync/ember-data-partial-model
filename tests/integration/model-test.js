@@ -1,25 +1,15 @@
+import {
+  module,
+  test
+} from 'qunit';
+
 import Ember from 'ember';
-import DS from 'ember-data';
-
-import { PartialModel, partial } from 'ember-data-partial-model/utils/model';
 import startApp from '../helpers/start-app';
-
-
-const { attr } = DS;
-var User, App;
-var run = Ember.run;
+var App;
 
 module("integration/model", {
   setup: function() {
     App = startApp();
-    store = App.__container__.lookup('store:main');
-
-    User = PartialModel.extend({
-      name: attr(),
-      extended: partial('user', 'extended', {
-        twitter: attr()
-      })
-    });
   },
 
   teardown: function () {
@@ -27,6 +17,34 @@ module("integration/model", {
   }
 });
 
-test('a', function(assert) {
-  // var user =
+test('', function(assert) {
+  visit('/users/1');
+
+  andThen(() => {
+    assert.equal(find('.twitter-handle').val(), "joliss-twitter");
+  });
+
+
+
+  // fillIn('input:last-of-type', "Twitter handle");
+
+});
+
+test('create', function(assert) {
+  visit('/');
+
+  fillIn('.new-user-name', "Some name");
+  fillIn('.new-user-twitter-handle', "twitter-handle");
+  click('.save-new-user-btn');
+
+  visit('/users/8');
+
+  andThen(() => {
+    assert.equal(find('.twitter-handle').val(), "twitter-handle");
+  });
+
+
+
+  // fillIn('input:last-of-type', "Twitter handle");
+
 });
