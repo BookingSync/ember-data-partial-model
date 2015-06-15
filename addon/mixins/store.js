@@ -11,6 +11,22 @@ export default Mixin.create({
     return factory;
   },
 
+  createRecord: function(modelName, inputProperties) {
+    let newRecord = this._super(...arguments);
+    let factory = newRecord.constructor;
+
+    if (factory._isPartialModel) {
+      factory.eachRelationship((relationshipKey, descriptor) => {
+        if (descriptor.options.isPartialExtension === true) {
+          let partialModel = this._super(`${modelName}-${relationshipKey}`, {});
+          newRecord.set(relationshipKey, partialModel);
+        }
+      });
+    }
+
+    return newRecord;
+  },
+
   generatePartialExtensionModel: function(factoryName, factory) {
     factory.eachRelationship((relationshipKey, descriptor) => {
       let partialExtensionModelName = `${factoryName}-${relationshipKey}`;
