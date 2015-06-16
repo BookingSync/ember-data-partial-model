@@ -1,5 +1,7 @@
 import Ember from 'ember';
+import DS from 'ember-data';
 const { Mixin } = Ember;
+const { Model } = DS;
 
 export default Mixin.create({
   modelFor: function(key) {
@@ -11,7 +13,7 @@ export default Mixin.create({
     return factory;
   },
 
-  createRecord: function(modelName, inputProperties) {
+  createRecord: function(modelName /*, inputProperties */) {
     let newRecord = this._super(...arguments);
     let factory = newRecord.constructor;
 
@@ -32,7 +34,7 @@ export default Mixin.create({
       let partialExtensionModelName = `${factoryName}-${relationshipKey}`;
       if (descriptor.options.isPartialExtension === true) {
         if (!this.container.has(`model:${partialExtensionModelName}`)) {
-          let partialExtensionModel = DS.Model.extend(descriptor.options.classHash)
+          let partialExtensionModel = Model.extend(descriptor.options.classHash)
             .reopenClass({ _extendPartialModel: factoryName });
           this.container.register(`model:${partialExtensionModelName}`, partialExtensionModel);
         }
@@ -47,7 +49,7 @@ export default Mixin.create({
         if (!this.container.has(`serializer:${partialExtensionSerializerName}`)) {
           let parentSerializerClass = this.serializerFor(factoryName).constructor;
           let partialExtensionSerializer = parentSerializerClass.extend({
-            modelNameFromPayloadKey: function(key) {
+            modelNameFromPayloadKey: function(/* key */) {
               return this._super(partialExtensionSerializerName);
             }
           });

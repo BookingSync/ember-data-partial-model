@@ -2,14 +2,15 @@ import DS from 'ember-data';
 import Ember from 'ember';
 const { computed, on, A: emberA, RSVP: { hash } } = Ember;
 const { alias } = computed;
+const { Model, belongsTo } = DS;
 
 function partial(modelName, prop, hash) {
-  return DS.belongsTo(`${modelName}-${prop}`, {
+  return belongsTo(`${modelName}-${prop}`, {
     async: true, isPartialExtension: true, classHash: hash
   });
 }
 
-let PartialModel = DS.Model.extend({
+let PartialModel = Model.extend({
   partialDescriptors() {
     let descriptors = emberA();
     this.constructor.eachRelationship((relationshipKey, descriptor) => {

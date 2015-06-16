@@ -1,5 +1,5 @@
 import Ember from 'ember';
-const { Mixin, A: emberA } = Ember;
+const { Mixin } = Ember;
 
 export default Mixin.create({
   buildURL: function(modelName, id, snapshot, requestType, query) {
