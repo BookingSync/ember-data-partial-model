@@ -1,4 +1,3 @@
-
 <ul>
   {{#each user in model}}
     <li>
@@ -6,4 +5,5 @@
     </li>
   {{/each}}
 </ul>
+{{#link-to 'users.new'}}New User{{/link-to}}
 {{outlet}}

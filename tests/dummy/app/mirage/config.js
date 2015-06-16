@@ -5,8 +5,6 @@ export default function() {
   this.get('/users/:id', function(db, request) {
     var id = request.params.id;
 
-    console.log(db, request);
-
     return {
       user: db.user_extendeds.find(id)
     };
@@ -14,8 +12,9 @@ export default function() {
 
   this.post('/users', function(db, request) {
     var attrs = JSON.parse(request.requestBody);
-    var user = db.users.insert(attrs);
-    var userExtended = db.user_extendeds.insert(attrs);
+    var user = db.users.insert({ name: attrs.user.name });
+    var userExtended = db.user_extendeds.insert(attrs.user);
+
     return {
       user: userExtended
     };

@@ -36,3 +36,17 @@ test("I can view a user with partial model loaded", function(assert) {
     assert.equal(find('.twitter-handle').val(), "@user-0");
   });
 });
+
+test("I can create a new user and it's partial model values", function(assert) {
+  visit('/users/new');
+
+  fillIn('.name', 'Seb');
+  fillIn('.twitter-handle', '@sebgrosjean');
+  click('.save-btn');
+
+  andThen(function() {
+    assert.equal(currentRouteName(), 'users.user');
+    assert.equal(find('.name').val(), "Seb");
+    assert.equal(find('.twitter-handle').val(), "@sebgrosjean");
+  });
+});
