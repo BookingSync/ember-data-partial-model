@@ -2,7 +2,7 @@ import Ember from 'ember';
 const { Mixin, A: emberA } = Ember;
 
 export default Mixin.create({
-  partialDescriptors: function(typeClass) {
+  _partialDescriptors: function(typeClass) {
     let descriptors = emberA();
     typeClass.eachRelationship((relationshipKey, descriptor) => {
       if (descriptor.options.isPartialExtension) {
@@ -14,7 +14,8 @@ export default Mixin.create({
 
   normalize: function(typeClass /*, hash, prop */) {
     let toReturn = this._super(...arguments);
-    this.partialDescriptors(typeClass).forEach(descriptor => {
+
+    this._partialDescriptors(typeClass).forEach(descriptor => {
       toReturn[descriptor.key] = toReturn.id;
     });
     return toReturn;
@@ -23,7 +24,7 @@ export default Mixin.create({
   serialize: function(snapshot /*, options */) {
     let ourHash = this._super(...arguments);
 
-    this.partialDescriptors(snapshot).forEach(descriptor => {
+    this._partialDescriptors(snapshot).forEach(descriptor => {
       let partialData = {};
       let partial = snapshot.belongsTo(descriptor.key);
 

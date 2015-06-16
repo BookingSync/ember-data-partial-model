@@ -10,8 +10,8 @@ function partial(modelName, prop, hash) {
   });
 }
 
-let PartialModel = Model.extend({
-  partialDescriptors() {
+var PartialModel = Model.extend({
+  _partialDescriptors() {
     let descriptors = emberA();
     this.constructor.eachRelationship((relationshipKey, descriptor) => {
       if (descriptor.options.isPartialExtension) {
@@ -22,7 +22,7 @@ let PartialModel = Model.extend({
   },
 
   _setupAliasesForPartials: on('init', function() {
-    this.partialDescriptors().forEach(descriptor => {
+    this._partialDescriptors().forEach(descriptor => {
       Object.keys(descriptor.options.classHash).forEach(attr => {
         Ember.defineProperty(this, attr, alias(`${descriptor.key}.${attr}`));
       });
@@ -30,7 +30,7 @@ let PartialModel = Model.extend({
   }),
 
   loadPartials() {
-    return new hash(this.getProperties(...this.partialDescriptors().mapBy('key'))).then(() => {
+    return new hash(this.getProperties(...this._partialDescriptors().mapBy('key'))).then(() => {
       return this;
     });
   }
