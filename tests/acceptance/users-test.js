@@ -50,3 +50,17 @@ test("I can create a new user and it's partial model values", function(assert) {
     assert.equal(find('.twitter-handle').val(), "@sebgrosjean");
   });
 });
+
+test("I can edit an existing user and it's partial model values", function(assert) {
+  visit('/users/1');
+
+  fillIn('.name', 'Karol');
+  fillIn('.twitter-handle', '@Azdaroth');
+  click('.save-btn');
+
+  andThen(function() {
+    assert.equal(currentRouteName(), 'users.user');
+    assert.equal(find('.name').val(), "Karol");
+    assert.equal(find('.twitter-handle').val(), "@Azdaroth");
+  });
+});
