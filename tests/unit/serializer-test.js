@@ -22,7 +22,7 @@ module('unit/serializer-mixin', {
   }
 });
 
-test('normalize assigns id from main model to extended models', function(assert) {
+test('normalize for partial model assigns id from main model to extended models', function(assert) {
   let payload = { name: 'name', id: 1 };
   let normalizedPayload = { name: 'name', id: 1, extended: 1 };
 

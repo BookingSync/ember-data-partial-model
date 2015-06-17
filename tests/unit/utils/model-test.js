@@ -5,6 +5,7 @@ import {
 
 import Ember from 'ember';
 import startapp from '../../helpers/start-app';
+import Pretender from 'pretender';
 
 var app, store;
 
@@ -53,5 +54,44 @@ test('PartialModel has defined aliases for setting / gettings properties in part
   });
 
   assert.equal(user.get('extended.twitter'), 'changed');
+});
+
+test('properties from partial models are always loaded before save', function(assert) {
+  var users, updateRequest, getRequestPerformed;
+
+  new Pretender(function() {
+    this.get('/api/users', function(request) {
+      let payload = {
+        'users': [{ 'id': '1', 'name': 'zencocoon' }]
+      };
+      return [200, {"Content-Type": "application/json"}, JSON.stringify(payload)];
+    });
+
+    this.get('/api/users/:id', function(request) {
+      getRequestPerformed = true;
+      let payload = {
+        'users': { 'id': '1', 'name': 'zencocoon', 'twitter': 'sebgrosjean' }
+      };
+      return [200, {"Content-Type": "application/json"}, JSON.stringify(payload)];
+    });
+
+    this.put('/api/users/:id', function(request) {
+      updateRequest = request;
+      return [200, {}, JSON.stringify({})];
+    });
+  });
+
+  Ember.run(() => {
+    users = store.find('user');
+  });
+
+  andThen(() => {
+    users.objectAt(0).save();
+  });
+
+  andThen(() => {
+    assert.ok(getRequestPerformed);
+    assert.equal(JSON.parse(updateRequest.requestBody).user.twitter, 'sebgrosjean');
+  });
 });
 
