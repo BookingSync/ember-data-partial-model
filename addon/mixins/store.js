@@ -14,6 +14,7 @@ export default Mixin.create({
   },
 
   createRecord: function(modelName, inputProperties) {
+    inputProperties = inputProperties || {};
     let factory = this.modelFor(modelName);
     let relationshipsToBeAssigned = {};
     let attributesFromPartialModels = [];
@@ -21,11 +22,12 @@ export default Mixin.create({
     if (factory._isPartialModel) {
       factory.eachRelationship((relationshipKey, descriptor) => {
         if (descriptor.options.isPartialExtension === true) {
-          // TODO: check for properties in parent model and do not set them in partial models
           let partialModelName = `${modelName}-${relationshipKey}`;
-          let partialModel = this._super(partialModelName, inputProperties);
+          let attributesFromPartialModel = Object.keys(descriptor.options.classHash);
+          let propertiesForPartialModel = this._extractPropertiesForPartialModel(inputProperties, attributesFromPartialModel);
+          let partialModel = this._super(partialModelName, propertiesForPartialModel);
 
-          attributesFromPartialModels = attributesFromPartialModels.concat(Object.keys(descriptor.options.classHash));
+          attributesFromPartialModels = attributesFromPartialModels.concat(attributesFromPartialModel);
           relationshipsToBeAssigned[relationshipKey] = partialModel;
         }
       });
@@ -48,6 +50,14 @@ export default Mixin.create({
       }
     }
     return propertiesForModel;
+  },
+
+  _extractPropertiesForPartialModel: function(inputProperties, attributesFromPartialModel) {
+    let propertiesForPartialModel = {};
+    attributesFromPartialModel.forEach((prop) => {
+      propertiesForPartialModel[prop] = inputProperties[prop];
+    });
+    return propertiesForPartialModel;
   },
 
   _generatePartialExtensionModel: function(factoryName, factory) {

@@ -39,15 +39,18 @@ test('modelFor generates serializer for partial extension model', function(asser
 });
 
 
-test('createRecord creates instance of parent model with partial models and properly handles assignment of properties', function(assert) {
+test('createRecord creates instance of parent model with partial models and properly handles assignment of properties: delegates assignment to proper partial models and assigns rest of the properties to parent model', function(assert) {
   let user;
 
   Ember.run(() => {
-    user = store.createRecord('user', { name: 'zencocoon', twitter: 'sebgrosjean' });
+    user = store.createRecord('user', { name: 'zencocoon', twitter: 'sebgrosjean', otherProperty: 'some value' });
   });
 
   assert.equal(user.get('name'), 'zencocoon');
   assert.equal(user.get('twitter'), 'sebgrosjean');
+  assert.equal(user.get('otherProperty'), 'some value');
   assert.ok(user.get('extended'));
   assert.equal(user.get('extended.twitter'), 'sebgrosjean');
+  assert.equal(user.get('extended.name'), null);
+  assert.equal(user.get('extended.otherProperty'), null);
 });
