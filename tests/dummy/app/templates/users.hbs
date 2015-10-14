@@ -1,5 +1,5 @@
 <ul>
-  {{#each user in model}}
+  {{#each model as |user|}}
     <li>
     {{#link-to 'users.user' user}}{{ user.name }}{{/link-to}}
     <button {{action "save" user}}>Save</button>

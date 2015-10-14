@@ -6,15 +6,13 @@ export default Mixin.create({
     let normalizedHash;
 
     if (typeClass._isPartialModel) {
-      normalizedHash = this._super(typeClass, hash, prop);
       let partialDescriptors = this._partialDescriptors(typeClass);
-      normalizedHash = this._super(typeClass, hash, prop);
 
       partialDescriptors.forEach(descriptor => {
-        normalizedHash[descriptor.key] = normalizedHash.id;
+        hash[descriptor.key] = hash.id;
       });
-    } else if (typeClass._extendPartialModel) {
-      normalizedHash = this._super(this.store.modelFor(typeClass._extendPartialModel), hash, prop);
+
+      normalizedHash = this._super(typeClass, hash, prop);
     } else {
       normalizedHash = this._super(...arguments);
     }

@@ -11,7 +11,7 @@ var app, store;
 module('unit/store-mixin', {
   setup: function() {
     app = startapp();
-    store = app.__container__.lookup('store:application');
+    store = app.__container__.lookup('service:store');
   },
   tearDown: function() {
     Ember.run(app, app.destroy);

@@ -61,33 +61,44 @@ export default Mixin.create({
   },
 
   _generatePartialExtensionModel: function(factoryName, factory) {
+    let registry = _getRegistry(this);
     factory.eachRelationship((relationshipKey, descriptor) => {
       let partialExtensionModelName = `${factoryName}-${relationshipKey}`;
       if (descriptor.options.isPartialExtension === true) {
-        if (!this.container.has(`model:${partialExtensionModelName}`)) {
+        if (!registry.has(`model:${partialExtensionModelName}`)) {
           let partialExtensionModel = Model.extend(descriptor.options.classHash)
             .reopenClass({ _extendPartialModel: factoryName });
-          this.container.register(`model:${partialExtensionModelName}`, partialExtensionModel);
+          registry.register(`model:${partialExtensionModelName}`, partialExtensionModel);
         }
       }
     });
   },
 
   _generatePartialExtensionSerializer: function(factoryName, factory) {
+    let registry = _getRegistry(this);
     factory.eachRelationship((relationshipKey, descriptor) => {
       let partialExtensionSerializerName = `${factoryName}-${relationshipKey}`;
       if (descriptor.options.isPartialExtension === true) {
-        if (!this.container.has(`serializer:${partialExtensionSerializerName}`)) {
+        if (!registry.has(`serializer:${partialExtensionSerializerName}`)) {
           let parentSerializerClass = this.serializerFor(factoryName).constructor;
           let partialExtensionSerializer = parentSerializerClass.extend({
             modelNameFromPayloadKey: function(/* key */) {
               return this._super(partialExtensionSerializerName);
             }
           });
-          this.container.register(`serializer:${partialExtensionSerializerName}`,
+          registry.register(`serializer:${partialExtensionSerializerName}`,
             partialExtensionSerializer);
         }
       }
     });
   }
 });
+
+function _getRegistry(store) {
+  // support pre Ember 2.1.x (Ember 2.0.x, 1.13.x)
+  if (store.container._registry) {
+    return store.container._registry;
+  } else {
+    return store.container.registry;
+  }
+}

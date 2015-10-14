@@ -12,7 +12,7 @@ var app, store;
 module('utils/model', {
   setup: function() {
     app = startapp();
-    store = app.__container__.lookup('store:application');
+    store = app.__container__.lookup('service:store');
   },
   tearDown: function() {
     Ember.run(app, app.destroy);
@@ -82,7 +82,7 @@ test('properties from partial models are always loaded before save', function(as
   });
 
   Ember.run(() => {
-    users = store.find('user');
+    users = store.findAll('user');
   });
 
   andThen(() => {
