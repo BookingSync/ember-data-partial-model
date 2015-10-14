@@ -4,6 +4,7 @@ const { Mixin } = Ember;
 export default Mixin.create({
   normalize: function(typeClass, hash, prop) {
     let normalizedHash;
+
     if (typeClass._isPartialModel) {
       let partialDescriptors = this._partialDescriptors(typeClass);
 
@@ -12,8 +13,6 @@ export default Mixin.create({
       });
 
       normalizedHash = this._super(typeClass, hash, prop);
-    } else if (typeClass._extendPartialModel) {
-      normalizedHash = this._super(this.store.modelFor(typeClass._extendPartialModel), hash, prop);
     } else {
       normalizedHash = this._super(...arguments);
     }

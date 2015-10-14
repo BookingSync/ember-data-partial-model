@@ -24,7 +24,23 @@ module('unit/serializer-mixin', {
 
 test('normalize for partial model assigns id from main model to extended models', function(assert) {
   let payload = { id: 1,  name: 'name' };
-  let normalizedPayload = { id: 1, name: 'name', extended: 1 };
+  let normalizedPayload = {
+    data: {
+      type: 'user',
+      id: '1',
+      attributes: {
+        name: 'name'
+      },
+      relationships: {
+        extended: {
+          data: {
+            type: 'user-extended',
+            id: '1'
+          }
+        }
+      }
+    }
+  };
 
   assert.deepEqual(serializer.normalize(store.modelFor('user'), payload), normalizedPayload);
 });

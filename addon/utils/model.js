@@ -10,6 +10,40 @@ function partial(modelName, prop, hash) {
   });
 }
 
+// function _generatePartialExtensionModel(factory, container) {
+//   let factoryName = factory.modelName;
+//   debugger;
+//   factory.eachRelationship((relationshipKey, descriptor) => {
+//     let partialExtensionModelName = `${factoryName}-${relationshipKey}`;
+//     if (descriptor.options.isPartialExtension === true) {
+//       if (!container._registry.has(`model:${partialExtensionModelName}`)) {
+//         let partialExtensionModel = Model.extend(descriptor.options.classHash)
+//           .reopenClass({ _extendPartialModel: factoryName });
+//         container._registry.register(`model:${partialExtensionModelName}`, partialExtensionModel);
+//       }
+//     }
+//   });
+// }
+
+// function _generatePartialExtensionSerializer(factory, container, store) {
+//   let factoryName = factory.modelName;
+//   factory.eachRelationship((relationshipKey, descriptor) => {
+//     let partialExtensionSerializerName = `${factoryName}-${relationshipKey}`;
+//     if (descriptor.options.isPartialExtension === true) {
+//       if (!container._registry.has(`serializer:${partialExtensionSerializerName}`)) {
+//         let parentSerializerClass = store.serializerFor(factoryName).constructor;
+//         let partialExtensionSerializer = parentSerializerClass.extend({
+//           modelNameFromPayloadKey: function(/* key */) {
+//             return this._super(partialExtensionSerializerName);
+//           }
+//         });
+//         container._registry.register(`serializer:${partialExtensionSerializerName}`,
+//           partialExtensionSerializer);
+//       }
+//     }
+//   });
+// }
+
 var PartialModel = Model.extend({
   _partialDescriptors() {
     return this.constructor._partialDescriptors();
@@ -22,6 +56,11 @@ var PartialModel = Model.extend({
       });
     });
   }),
+
+  // _registerExtendedModels: on('init', function() {
+  //   _generatePartialExtensionModel(this.constructor, this.container);
+  //   _generatePartialExtensionSerializer(this.constructor, this.container, this.store);
+  // }),
 
   loadPartials() {
     return new hash(this.getProperties(...this._partialDescriptors().mapBy('key'))).then(() => {

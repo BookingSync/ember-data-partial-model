@@ -6,7 +6,6 @@ const { Model } = DS;
 export default Mixin.create({
   modelFor: function(key) {
     let factory = this._super(key);
-
     if (factory._isPartialModel === true) {
       this._generatePartialExtensionModel(key, factory);
       this._generatePartialExtensionSerializer(key, factory);
