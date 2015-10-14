@@ -6,6 +6,7 @@ const { Model } = DS;
 export default Mixin.create({
   modelFor: function(key) {
     let factory = this._super(key);
+
     if (factory._isPartialModel === true) {
       this._generatePartialExtensionModel(key, factory);
       this._generatePartialExtensionSerializer(key, factory);
@@ -64,10 +65,10 @@ export default Mixin.create({
     factory.eachRelationship((relationshipKey, descriptor) => {
       let partialExtensionModelName = `${factoryName}-${relationshipKey}`;
       if (descriptor.options.isPartialExtension === true) {
-        if (!this.container.has(`model:${partialExtensionModelName}`)) {
+        if (!this.container._registry.has(`model:${partialExtensionModelName}`)) {
           let partialExtensionModel = Model.extend(descriptor.options.classHash)
             .reopenClass({ _extendPartialModel: factoryName });
-          this.container.register(`model:${partialExtensionModelName}`, partialExtensionModel);
+          this.container._registry.register(`model:${partialExtensionModelName}`, partialExtensionModel);
         }
       }
     });
@@ -77,14 +78,14 @@ export default Mixin.create({
     factory.eachRelationship((relationshipKey, descriptor) => {
       let partialExtensionSerializerName = `${factoryName}-${relationshipKey}`;
       if (descriptor.options.isPartialExtension === true) {
-        if (!this.container.has(`serializer:${partialExtensionSerializerName}`)) {
+        if (!this.container._registry.has(`serializer:${partialExtensionSerializerName}`)) {
           let parentSerializerClass = this.serializerFor(factoryName).constructor;
           let partialExtensionSerializer = parentSerializerClass.extend({
             modelNameFromPayloadKey: function(/* key */) {
               return this._super(partialExtensionSerializerName);
             }
           });
-          this.container.register(`serializer:${partialExtensionSerializerName}`,
+          this.container._registry.register(`serializer:${partialExtensionSerializerName}`,
             partialExtensionSerializer);
         }
       }

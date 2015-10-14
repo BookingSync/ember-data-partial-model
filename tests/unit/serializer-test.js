@@ -14,7 +14,7 @@ module('unit/serializer-mixin', {
   setup: function() {
     serializer = DS.RESTSerializer.createWithMixins(PartialModelSerializer);
     app = startapp();
-    store = app.__container__.lookup('store:application');
+    store = app.__container__.lookup('service:store');
   },
   tearDown: function() {
     Ember.run(serializer, 'destroy');
@@ -23,8 +23,8 @@ module('unit/serializer-mixin', {
 });
 
 test('normalize for partial model assigns id from main model to extended models', function(assert) {
-  let payload = { name: 'name', id: 1 };
-  let normalizedPayload = { name: 'name', id: 1, extended: 1 };
+  let payload = { id: 1,  name: 'name' };
+  let normalizedPayload = { id: 1, name: 'name', extended: 1 };
 
   assert.deepEqual(serializer.normalize(store.modelFor('user'), payload), normalizedPayload);
 });

@@ -1,0 +1,226 @@
+diff --git a/addon/mixins/serializer.js b/addon/mixins/serializer.js
+index 885955b..265ba87 100644
+--- a/addon/mixins/serializer.js
++++ b/addon/mixins/serializer.js
+@@ -4,15 +4,14 @@ const { Mixin } = Ember;
+ export default Mixin.create({
+   normalize: function(typeClass, hash, prop) {
+     let normalizedHash;
+-
+     if (typeClass._isPartialModel) {
+-      normalizedHash = this._super(typeClass, hash, prop);
+       let partialDescriptors = this._partialDescriptors(typeClass);
+-      normalizedHash = this._super(typeClass, hash, prop);
+ 
+       partialDescriptors.forEach(descriptor => {
+-        normalizedHash[descriptor.key] = normalizedHash.id;
++        hash[descriptor.key] = hash.id;
+       });
++
++      normalizedHash = this._super(typeClass, hash, prop);
+     } else if (typeClass._extendPartialModel) {
+       normalizedHash = this._super(this.store.modelFor(typeClass._extendPartialModel), hash, prop);
+     } else {
+diff --git a/addon/mixins/store.js b/addon/mixins/store.js
+index 4235441..7311077 100644
+--- a/addon/mixins/store.js
++++ b/addon/mixins/store.js
+@@ -6,6 +6,7 @@ const { Model } = DS;
+ export default Mixin.create({
+   modelFor: function(key) {
+     let factory = this._super(key);
++
+     if (factory._isPartialModel === true) {
+       this._generatePartialExtensionModel(key, factory);
+       this._generatePartialExtensionSerializer(key, factory);
+@@ -64,10 +65,10 @@ export default Mixin.create({
+     factory.eachRelationship((relationshipKey, descriptor) => {
+       let partialExtensionModelName = `${factoryName}-${relationshipKey}`;
+       if (descriptor.options.isPartialExtension === true) {
+-        if (!this.container.has(`model:${partialExtensionModelName}`)) {
++        if (!this.container._registry.has(`model:${partialExtensionModelName}`)) {
+           let partialExtensionModel = Model.extend(descriptor.options.classHash)
+             .reopenClass({ _extendPartialModel: factoryName });
+-          this.container.register(`model:${partialExtensionModelName}`, partialExtensionModel);
++          this.container._registry.register(`model:${partialExtensionModelName}`, partialExtensionModel);
+         }
+       }
+     });
+@@ -77,14 +78,14 @@ export default Mixin.create({
+     factory.eachRelationship((relationshipKey, descriptor) => {
+       let partialExtensionSerializerName = `${factoryName}-${relationshipKey}`;
+       if (descriptor.options.isPartialExtension === true) {
+-        if (!this.container.has(`serializer:${partialExtensionSerializerName}`)) {
++        if (!this.container._registry.has(`serializer:${partialExtensionSerializerName}`)) {
+           let parentSerializerClass = this.serializerFor(factoryName).constructor;
+           let partialExtensionSerializer = parentSerializerClass.extend({
+             modelNameFromPayloadKey: function(/* key */) {
+               return this._super(partialExtensionSerializerName);
+             }
+           });
+-          this.container.register(`serializer:${partialExtensionSerializerName}`,
++          this.container._registry.register(`serializer:${partialExtensionSerializerName}`,
+             partialExtensionSerializer);
+         }
+       }
+diff --git a/app/adapters/application.js b/app/adapters/application.js
+index 243378c..3e74af7 100644
+--- a/app/adapters/application.js
++++ b/app/adapters/application.js
+@@ -2,4 +2,7 @@ import DS from 'ember-data';
+ import PartialModelAdapter from 'ember-data-partial-model/mixins/adapter';
+ const { RESTAdapter } = DS;
+ 
+-export default RESTAdapter.extend(PartialModelAdapter, {});
++export default RESTAdapter.extend(PartialModelAdapter, {
++  shouldReloadAll: false,
++  shouldBackgroundReloadRecord: true
++});
+diff --git a/app/serializers/application.js b/app/serializers/application.js
+index 07cc6b9..66943d3 100644
+--- a/app/serializers/application.js
++++ b/app/serializers/application.js
+@@ -2,4 +2,4 @@ import DS from 'ember-data';
+ import PartialModelSerializer from 'ember-data-partial-model/mixins/serializer';
+ const { RESTSerializer } = DS;
+ 
+-export default RESTSerializer.extend(PartialModelSerializer, {});
++export default RESTSerializer.extend(PartialModelSerializer);
+diff --git a/app/stores/application.js b/app/stores/application.js
+deleted file mode 100644
+index 82a3bbd..0000000
+--- a/app/stores/application.js
++++ /dev/null
+@@ -1,5 +0,0 @@
+-import DS from 'ember-data';
+-import PartialModelStore from 'ember-data-partial-model/mixins/store';
+-const { Store } = DS;
+-
+-export default Store.extend(PartialModelStore, {});
+diff --git a/bower.json b/bower.json
+index e52ed0e..cb325a2 100644
+--- a/bower.json
++++ b/bower.json
+@@ -4,7 +4,7 @@
+     "ember": "1.12.1",
+     "ember-cli-shims": "ember-cli/ember-cli-shims#0.0.3",
+     "ember-cli-test-loader": "ember-cli-test-loader#0.1.3",
+-    "ember-data": "canary",
++    "ember-data": "1.13.0",
+     "ember-load-initializers": "ember-cli/ember-load-initializers#0.1.4",
+     "ember-qunit": "0.3.3",
+     "ember-qunit-notifications": "0.0.7",
+diff --git a/tests/dummy/app/controllers/users.js b/tests/dummy/app/controllers/users.js
+index a4687c3..ac77a65 100644
+--- a/tests/dummy/app/controllers/users.js
++++ b/tests/dummy/app/controllers/users.js
+@@ -5,7 +5,7 @@ export default Ember.Controller.extend({
+     save(user) {
+       user.save()
+         .then(user => {
+-          this.transitionTo('users.user', user);
++          this.transitionToRoute('users.user', user);
+         })
+         .catch(error => {
+           console.log('TODO: handle errors');
+diff --git a/tests/dummy/app/controllers/users/new.js b/tests/dummy/app/controllers/users/new.js
+index a4687c3..ac77a65 100644
+--- a/tests/dummy/app/controllers/users/new.js
++++ b/tests/dummy/app/controllers/users/new.js
+@@ -5,7 +5,7 @@ export default Ember.Controller.extend({
+     save(user) {
+       user.save()
+         .then(user => {
+-          this.transitionTo('users.user', user);
++          this.transitionToRoute('users.user', user);
+         })
+         .catch(error => {
+           console.log('TODO: handle errors');
+diff --git a/tests/dummy/app/routes/users.js b/tests/dummy/app/routes/users.js
+index 11e9638..4e0d1b9 100644
+--- a/tests/dummy/app/routes/users.js
++++ b/tests/dummy/app/routes/users.js
+@@ -2,6 +2,6 @@ import Ember from 'ember';
+ 
+ export default Ember.Route.extend({
+   model: function(params) {
+-    return this.store.find('user');
++    return this.store.findAll('user');
+   }
+ });
+diff --git a/tests/unit/serializer-test.js b/tests/unit/serializer-test.js
+index 559cda0..ba276da 100644
+--- a/tests/unit/serializer-test.js
++++ b/tests/unit/serializer-test.js
+@@ -14,7 +14,7 @@ module('unit/serializer-mixin', {
+   setup: function() {
+     serializer = DS.RESTSerializer.createWithMixins(PartialModelSerializer);
+     app = startapp();
+-    store = app.__container__.lookup('store:application');
++    store = app.__container__.lookup('service:store');
+   },
+   tearDown: function() {
+     Ember.run(serializer, 'destroy');
+@@ -23,8 +23,25 @@ module('unit/serializer-mixin', {
+ });
+ 
+ test('normalize for partial model assigns id from main model to extended models', function(assert) {
+-  let payload = { name: 'name', id: 1 };
+-  let normalizedPayload = { name: 'name', id: 1, extended: 1 };
++  let payload = { id: 1,  name: 'name' };
++  // let normalizedPayload = {
++  //   data: {
++  //     type: 'user',
++  //     id: '1',
++  //     attributes: {
++  //       name: 'name'
++  //     },
++  //     relationships: {
++  //       extended: {
++  //         data: {
++  //           type: 'user-extended',
++  //           id: '1'
++  //         }
++  //       }
++  //     }
++  //   }
++  // };
++  let normalizedPayload = { id: 1, name: 'name', extended: 1 };
+ 
+   assert.deepEqual(serializer.normalize(store.modelFor('user'), payload), normalizedPayload);
+ });
+diff --git a/tests/unit/store-test.js b/tests/unit/store-test.js
+index 6b66eb1..dda2259 100644
+--- a/tests/unit/store-test.js
++++ b/tests/unit/store-test.js
+@@ -11,7 +11,7 @@ var app, store;
+ module('unit/store-mixin', {
+   setup: function() {
+     app = startapp();
+-    store = app.__container__.lookup('store:application');
++    store = app.__container__.lookup('service:store');
+   },
+   tearDown: function() {
+     Ember.run(app, app.destroy);
+diff --git a/tests/unit/utils/model-test.js b/tests/unit/utils/model-test.js
+index 3894246..6fcf786 100644
+--- a/tests/unit/utils/model-test.js
++++ b/tests/unit/utils/model-test.js
+@@ -12,7 +12,7 @@ var app, store;
+ module('utils/model', {
+   setup: function() {
+     app = startapp();
+-    store = app.__container__.lookup('store:application');
++    store = app.__container__.lookup('service:store');
+   },
+   tearDown: function() {
+     Ember.run(app, app.destroy);
+@@ -82,7 +82,7 @@ test('properties from partial models are always loaded before save', function(as
+   });
+ 
+   Ember.run(() => {
+-    users = store.find('user');
++    users = store.findAll('user');
+   });
+ 
+   andThen(() => {

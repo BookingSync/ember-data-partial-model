@@ -5,7 +5,7 @@ export default Ember.Controller.extend({
     save(user) {
       user.save()
         .then(user => {
-          this.transitionTo('users.user', user);
+          this.transitionToRoute('users.user', user);
         })
         .catch(error => {
           console.log('TODO: handle errors');
