@@ -14,6 +14,7 @@ export default Mixin.create({
   },
 
   createRecord: function(modelName, inputProperties) {
+    inputProperties = inputProperties || {};
     let factory = this.modelFor(modelName);
     let relationshipsToBeAssigned = {};
     let attributesFromPartialModels = [];
@@ -21,11 +22,12 @@ export default Mixin.create({
     if (factory._isPartialModel) {
       factory.eachRelationship((relationshipKey, descriptor) => {
         if (descriptor.options.isPartialExtension === true) {
-          // TODO: check for properties in parent model and do not set them in partial models
           let partialModelName = `${modelName}-${relationshipKey}`;
-          let partialModel = this._super(partialModelName, inputProperties);
+          let attributesFromPartialModel = Object.keys(descriptor.options.classHash);
+          let propertiesForPartialModel = this._extractPropertiesForPartialModel(inputProperties, attributesFromPartialModel);
+          let partialModel = this._super(partialModelName, propertiesForPartialModel);
 
-          attributesFromPartialModels = attributesFromPartialModels.concat(Object.keys(descriptor.options.classHash));
+          attributesFromPartialModels = attributesFromPartialModels.concat(attributesFromPartialModel);
           relationshipsToBeAssigned[relationshipKey] = partialModel;
         }
       });
@@ -50,34 +52,53 @@ export default Mixin.create({
     return propertiesForModel;
   },
 
+  _extractPropertiesForPartialModel: function(inputProperties, attributesFromPartialModel) {
+    let propertiesForPartialModel = {};
+    attributesFromPartialModel.forEach((prop) => {
+      propertiesForPartialModel[prop] = inputProperties[prop];
+    });
+    return propertiesForPartialModel;
+  },
+
   _generatePartialExtensionModel: function(factoryName, factory) {
+    let registry = _getRegistry(this);
     factory.eachRelationship((relationshipKey, descriptor) => {
       let partialExtensionModelName = `${factoryName}-${relationshipKey}`;
       if (descriptor.options.isPartialExtension === true) {
-        if (!this.container.has(`model:${partialExtensionModelName}`)) {
+        if (!registry.has(`model:${partialExtensionModelName}`)) {
           let partialExtensionModel = Model.extend(descriptor.options.classHash)
             .reopenClass({ _extendPartialModel: factoryName });
-          this.container.register(`model:${partialExtensionModelName}`, partialExtensionModel);
+          registry.register(`model:${partialExtensionModelName}`, partialExtensionModel);
         }
       }
     });
   },
 
   _generatePartialExtensionSerializer: function(factoryName, factory) {
+    let registry = _getRegistry(this);
     factory.eachRelationship((relationshipKey, descriptor) => {
       let partialExtensionSerializerName = `${factoryName}-${relationshipKey}`;
       if (descriptor.options.isPartialExtension === true) {
-        if (!this.container.has(`serializer:${partialExtensionSerializerName}`)) {
+        if (!registry.has(`serializer:${partialExtensionSerializerName}`)) {
           let parentSerializerClass = this.serializerFor(factoryName).constructor;
           let partialExtensionSerializer = parentSerializerClass.extend({
             modelNameFromPayloadKey: function(/* key */) {
               return this._super(partialExtensionSerializerName);
             }
           });
-          this.container.register(`serializer:${partialExtensionSerializerName}`,
+          registry.register(`serializer:${partialExtensionSerializerName}`,
             partialExtensionSerializer);
         }
       }
     });
   }
 });
+
+function _getRegistry(store) {
+  // support pre Ember 2.1.x (Ember 2.0.x, 1.13.x)
+  if (store.container._registry) {
+    return store.container._registry;
+  } else {
+    return store.container.registry;
+  }
+}

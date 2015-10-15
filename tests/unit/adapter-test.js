@@ -11,7 +11,7 @@ var adapter;
 
 module('unit/adapter-mixin', {
   setup: function() {
-    adapter = DS.RESTAdapter.createWithMixins(PartialModelAdapter);
+    adapter = DS.RESTAdapter.extend(PartialModelAdapter).create();
   },
   tearDown: function() {
     Ember.run(adapter, 'destroy');
