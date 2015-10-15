@@ -1,6 +1,6 @@
 {
   "name": "ember-data-partial-model",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Add support for partial models to Ember Data.",
   "directories": {
     "doc": "doc",
