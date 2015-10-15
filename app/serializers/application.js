@@ -1,5 +1,5 @@
 import DS from 'ember-data';
-import PartialModelSerializer from 'ember-data-partial-model/mixins/serializer';
-const { RESTSerializer } = DS;
+import PartialModelJSONAPISerializer from 'ember-data-partial-model/mixins/jsonapi-serializer';
+const { JSONAPISerializer } = DS;
 
-export default RESTSerializer.extend(PartialModelSerializer);
+export default JSONAPISerializer.extend(PartialModelJSONAPISerializer);

@@ -1,5 +1,5 @@
 import DS from 'ember-data';
 import PartialModelAdapter from 'ember-data-partial-model/mixins/adapter';
-const { RESTAdapter } = DS;
+const { JSONAPIAdapter } = DS;
 
-export default RESTAdapter.extend(PartialModelAdapter);
+export default JSONAPIAdapter.extend(PartialModelAdapter);
