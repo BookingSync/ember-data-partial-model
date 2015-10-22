@@ -6,7 +6,7 @@ var app;
 var users;
 var userExtended;
 
-module('Acceptance: Users', {
+module('Acceptance: Users using REST serializer', {
   beforeEach: function() {
     app = startApp();
     users = server.createList('user', 2);

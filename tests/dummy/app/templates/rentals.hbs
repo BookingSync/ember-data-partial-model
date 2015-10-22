@@ -1,0 +1,10 @@
+<ul>
+  {{#each model as |rental|}}
+    <li>
+      {{#link-to 'rentals.rental' rental}}{{ rental.name }}{{/link-to}}
+      <button {{action "save" rental}}>Save</button>
+    </li>
+  {{/each}}
+</ul>
+{{#link-to 'rentals.new'}}New Rental{{/link-to}}
+{{outlet}}

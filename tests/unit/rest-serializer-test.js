@@ -6,11 +6,11 @@ import {
 import Ember from 'ember';
 import DS from 'ember-data';
 import startapp from '../helpers/start-app';
-import PartialModelSerializer from 'ember-data-partial-model/mixins/serializer';
+import PartialModelSerializer from 'ember-data-partial-model/mixins/rest-serializer';
 
 var serializer, app, store;
 
-module('unit/serializer-mixin', {
+module('unit/rest-serializer-mixin', {
   setup: function() {
     serializer = DS.RESTSerializer.extend(PartialModelSerializer).create();
     app = startapp();
