@@ -61,44 +61,58 @@ export default Mixin.create({
   },
 
   _generatePartialExtensionModel: function(factoryName, factory) {
-    let registry = _getRegistry(this);
     factory.eachRelationship((relationshipKey, descriptor) => {
       let partialExtensionModelName = `${factoryName}-${relationshipKey}`;
+      let dependencyName = `model:${partialExtensionModelName}`;
       if (descriptor.options.isPartialExtension === true) {
-        if (!registry.has(`model:${partialExtensionModelName}`)) {
+        if (!_isDependencyRegistered(this, dependencyName)) {
           let partialExtensionModel = Model.extend(descriptor.options.classHash)
             .reopenClass({ _extendPartialModel: factoryName });
-          registry.register(`model:${partialExtensionModelName}`, partialExtensionModel);
+          _registerDependency(this, dependencyName, partialExtensionModel);
         }
       }
     });
   },
 
   _generatePartialExtensionSerializer: function(factoryName, factory) {
-    let registry = _getRegistry(this);
     factory.eachRelationship((relationshipKey, descriptor) => {
       let partialExtensionSerializerName = `${factoryName}-${relationshipKey}`;
+      let dependencyName = `serializer:${partialExtensionSerializerName}`;
       if (descriptor.options.isPartialExtension === true) {
-        if (!registry.has(`serializer:${partialExtensionSerializerName}`)) {
+        if (!_isDependencyRegistered(this, dependencyName)) {
           let parentSerializerClass = this.serializerFor(factoryName).constructor;
           let partialExtensionSerializer = parentSerializerClass.extend({
             modelNameFromPayloadKey: function(/* key */) {
               return this._super(partialExtensionSerializerName);
             }
           });
-          registry.register(`serializer:${partialExtensionSerializerName}`,
-            partialExtensionSerializer);
+          _registerDependency(this, dependencyName, partialExtensionSerializer);
         }
       }
     });
   }
 });
 
-function _getRegistry(store) {
-  // support pre Ember 2.1.x (Ember 2.0.x, 1.13.x)
-  if (store.container._registry) {
-    return store.container._registry;
+function _isDependencyRegistered(store, dependencyName) {
+  if (Ember.getOwner) {
+    return Ember.getOwner(store).hasRegistration(dependencyName);
+  } else if (store.container.registry) {
+    // support Ember 2.1 - 2.2
+    return store.container.registry.has(dependencyName);
   } else {
-    return store.container.registry;
+    // fallback to Ember < 2.1
+    return store.container._registry.has(dependencyName);
+  }
+}
+
+function _registerDependency(store, dependencyName, dependency) {
+  if (Ember.getOwner) {
+    Ember.getOwner(store).register(dependencyName, dependency);
+  } else if (store.container.registry) {
+    // support Ember 2.1 - 2.2
+    store.container.registry.register(dependencyName, dependency);
+  } else {
+    // fallback to Ember < 2.1
+    store.container._registry.register(dependencyName, dependency);
   }
 }
