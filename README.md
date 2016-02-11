@@ -36,7 +36,7 @@ or any of the extended properties will trigger a request for the detailed model.
 For example:
 
 ```js
-let users = await store.find('user'); // goes to /users
+let users = await store.findAll('user'); // goes to /users
 let user = users.objectAt(1);
 
 user.get('extended') //goes to /users/1, returns a promise
