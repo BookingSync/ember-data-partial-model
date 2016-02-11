@@ -60,17 +60,12 @@ test('properties from partial models are always loaded before save', function(as
   var users, updateRequest, getRequestPerformed;
 
   new Pretender(function() {
-    this.get('/api/users', function(request) {
-      let payload = {
-        'users': [{ 'id': '1', 'name': 'zencocoon' }]
-      };
-      return [200, {"Content-Type": "application/json"}, JSON.stringify(payload)];
-    });
-
     this.get('/api/users/:id', function(request) {
       getRequestPerformed = true;
       let payload = {
-        'users': { 'id': '1', 'name': 'zencocoon', 'twitter': 'sebgrosjean' }
+        users: {
+          id: 1, name: 'zencocoon', twitter: 'sebgrosjean'
+        }
       };
       return [200, {"Content-Type": "application/json"}, JSON.stringify(payload)];
     });
@@ -82,7 +77,13 @@ test('properties from partial models are always loaded before save', function(as
   });
 
   Ember.run(() => {
-    users = store.findAll('user');
+    let payload = {
+      users: [
+        { id: 1, name: 'zencocoon' }
+      ]
+    };
+    store.pushPayload('user', payload);
+    users = store.peekAll('user');
   });
 
   andThen(() => {

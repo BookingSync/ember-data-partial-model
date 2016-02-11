@@ -4,9 +4,9 @@ const { Mixin } = Ember;
 const { normalizeEachPartialRelationship, serializeEachPartialRelationship } = partialModelHandler;
 
 export default Mixin.create({
-  normalize: function(modelClass, resourceHash) {
+  normalize: function(modelClass, resourceHash, prop) {
     normalizeEachPartialRelationship(modelClass, resourceHash, this, this._normalizePartialRelationship);
-    return this._super(modelClass, resourceHash);
+    return this._super(modelClass, resourceHash, prop);
   },
 
   serialize: function(snapshot /*, options */) {

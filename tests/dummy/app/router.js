@@ -10,7 +10,7 @@ Router.map(function() {
     this.route('user', { path: '/users/:user_id' });
     this.route('new', { path: '/users/new' });
   });
-  this.resource('rentals', { path: '/rentals' }, function() {
+  this.route('rentals', { resetNamespace: true,  path: '/rentals' }, function() {
     this.route('rental', { path: '/:rental_id' });
     this.route('new', { path: '/new' });
   });
