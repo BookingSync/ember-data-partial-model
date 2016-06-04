@@ -50,6 +50,10 @@ In your template you can do
 ```
 and it will populate once the full user is loaded
 
+## Introduction Video
+
+[![Introduction to Ember Data Partial Model](https://i.vimeocdn.com/video/564803264_640x400.jpg)](https://vimeo.com/162329720)
+
 ## How to use
 If you haven't customized any of your adapters, serializers or store, the addon will work out of the box. By default it uses JSONAPISerializer and JSONAPIAdapter.
 
