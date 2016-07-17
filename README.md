@@ -1,4 +1,4 @@
-# Ember-data-partial-model
+# Ember-data-partial-model [![Build Status](https://travis-ci.org/BookingSync/ember-data-partial-model.svg?branch=master)](https://travis-ci.org/BookingSync/ember-data-partial-model.svg) [![npm version](https://badge.fury.io/js/ember-data-partial-model.svg)](https://badge.fury.io/js/ember-data-partial-model.svg) [![Ember Observer Score](https://emberobserver.com/badges/ember-data-partial-model.svg)](https://emberobserver.com/addons/ember-data-partial-model)
 
 This addon adds support for partial records to Ember Data. Let's say your api for
 `/users` returns a shallow model like:
