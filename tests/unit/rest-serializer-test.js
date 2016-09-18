@@ -45,14 +45,15 @@ test('normalize for partial model assigns id from main model to extended models'
   assert.deepEqual(serializer.normalize(store.modelFor('user'), payload), normalizedPayload);
 });
 
-test('serialize performs serialization by merging payload from partial models to payload from main model and deletes partial models from hash', function(assert) {
-  var user, client;
+test('serialize performs serialization by merging payload from partial models ' +
+  'to payload from main model and deletes partial models from hash ' +
+  'and respects extensions for partial serializer', function(assert) {
+  let user, client;
   Ember.run(() => {
     client = store.createRecord('client', { fullName: 'Awesome Client', id: 1 });
     user = store.createRecord('user', { name: 'zencocoon', twitter: 'sebgrosjean' });
     user.get('clients').pushObject(client);
   });
-
 
   let serializedUser = {
     name: 'zencocoon',

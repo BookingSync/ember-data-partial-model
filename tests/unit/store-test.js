@@ -28,7 +28,7 @@ test('modelFor generates partial extension model with name reference to parent m
 });
 
 
-test('modelFor generates serializer for partial extension model', function(assert) {
+test('modelFor generates serializer for partial extension model respecting mixins and overrides', function(assert) {
   assert.equal(app.__container__.lookup('serializer:user-extended'), null);
 
   // will generate user-extended serializer
@@ -36,6 +36,8 @@ test('modelFor generates serializer for partial extension model', function(asser
 
   let serializer = store.serializerFor('user-extended');
   assert.equal(serializer.modelNameFromPayloadKey(), 'user-extended');
+  assert.deepEqual(serializer.attrs, { clients: { embedded: 'always' } });
+  assert.equal(serializer.__magicAttributeForTest__, true);
 });
 
 
