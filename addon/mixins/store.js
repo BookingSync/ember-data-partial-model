@@ -1,6 +1,6 @@
 import Ember from 'ember';
 import DS from 'ember-data';
-const { Mixin } = Ember;
+const { Mixin, merge } = Ember;
 const { Model } = DS;
 
 export default Mixin.create({
@@ -101,8 +101,8 @@ export default Mixin.create({
     let serializerOverrides = {};
     let externalOverrides = parentSerializer.partialSerializersExtensions &&
       parentSerializer.partialSerializersExtensions[partialName] || {};
-    Object.assign(serializerOverrides, externalOverrides);
-    Object.assign(serializerOverrides, {
+    merge(serializerOverrides, externalOverrides);
+    merge(serializerOverrides, {
       modelNameFromPayloadKey() {
         return this._super(partialExtensionSerializerName);
       }
