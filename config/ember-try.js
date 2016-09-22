@@ -57,6 +57,14 @@ module.exports = {
       }
     },
     {
+      name: '2.7',
+       dependencies: {
+        'ember': '2.7.0',
+        'ember-data': '2.7.0',
+        "ember-cli-shims": "0.1.0",
+      }
+    },
+    {
       name: 'default',
       dependencies: {
 

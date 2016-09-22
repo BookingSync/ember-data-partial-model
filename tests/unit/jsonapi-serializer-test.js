@@ -60,7 +60,7 @@ test('normalize for partial model assigns id from main model to extended models'
 });
 
 test('serialize performs serialization by merging payload from partial models to payload from main model and deletes partial models from hash', function(assert) {
-  var user;
+  let user;
   Ember.run(() => {
     user = store.createRecord('user', { name: 'zencocoon', twitter: 'sebgrosjean' });
   });

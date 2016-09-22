@@ -1,10 +1,10 @@
 import Ember from 'ember';
 import DS from 'ember-data';
-const { Mixin } = Ember;
+const { Mixin, merge } = Ember;
 const { Model } = DS;
 
 export default Mixin.create({
-  modelFor: function(key) {
+  modelFor(key) {
     let factory = this._super(key);
     if (factory._isPartialModel === true) {
       this._generatePartialExtensionModel(key, factory);
@@ -13,7 +13,7 @@ export default Mixin.create({
     return factory;
   },
 
-  createRecord: function(modelName, inputProperties) {
+  createRecord(modelName, inputProperties) {
     inputProperties = inputProperties || {};
     let factory = this.modelFor(modelName);
     let relationshipsToBeAssigned = {};
@@ -23,8 +23,10 @@ export default Mixin.create({
       factory.eachRelationship((relationshipKey, descriptor) => {
         if (descriptor.options.isPartialExtension === true) {
           let partialModelName = `${modelName}-${relationshipKey}`;
-          let attributesFromPartialModel = Object.keys(descriptor.options.classHash);
-          let propertiesForPartialModel = this._extractPropertiesForPartialModel(inputProperties, attributesFromPartialModel);
+          let partialProperties = descriptor.options.classHash;
+          let attributesFromPartialModel = Object.keys(partialProperties);
+          let propertiesForPartialModel = this._extractPropertiesForPartialModel(
+            inputProperties, attributesFromPartialModel, partialProperties);
           let partialModel = this._super(partialModelName, propertiesForPartialModel);
 
           attributesFromPartialModels = attributesFromPartialModels.concat(attributesFromPartialModel);
@@ -42,7 +44,7 @@ export default Mixin.create({
     return newRecord;
   },
 
-  _extractPropertiesForModel: function(inputProperties, attributesFromPartialModels) {
+  _extractPropertiesForModel(inputProperties, attributesFromPartialModels) {
     let propertiesForModel = {};
     for (let prop in inputProperties) {
       if (attributesFromPartialModels.indexOf(prop) === -1) {
@@ -52,15 +54,17 @@ export default Mixin.create({
     return propertiesForModel;
   },
 
-  _extractPropertiesForPartialModel: function(inputProperties, attributesFromPartialModel) {
+  _extractPropertiesForPartialModel(inputProperties, attributesFromPartialModel) {
     let propertiesForPartialModel = {};
-    attributesFromPartialModel.forEach((prop) => {
-      propertiesForPartialModel[prop] = inputProperties[prop];
+    attributesFromPartialModel
+      .filter((prop) => inputProperties.hasOwnProperty(prop))
+      .forEach((prop) => {
+        propertiesForPartialModel[prop] = inputProperties[prop];
     });
     return propertiesForPartialModel;
   },
 
-  _generatePartialExtensionModel: function(factoryName, factory) {
+  _generatePartialExtensionModel(factoryName, factory) {
     factory.eachRelationship((relationshipKey, descriptor) => {
       let partialExtensionModelName = `${factoryName}-${relationshipKey}`;
       let dependencyName = `model:${partialExtensionModelName}`;
@@ -74,22 +78,41 @@ export default Mixin.create({
     });
   },
 
-  _generatePartialExtensionSerializer: function(factoryName, factory) {
-    factory.eachRelationship((relationshipKey, descriptor) => {
-      let partialExtensionSerializerName = `${factoryName}-${relationshipKey}`;
+  _generatePartialExtensionSerializer(factoryName, factory) {
+    factory.eachRelationship((partialName, descriptor) => {
+      let partialExtensionSerializerName = `${factoryName}-${partialName}`;
       let dependencyName = `serializer:${partialExtensionSerializerName}`;
       if (descriptor.options.isPartialExtension === true) {
         if (!_isDependencyRegistered(this, dependencyName)) {
-          let parentSerializerClass = this.serializerFor(factoryName).constructor;
-          let partialExtensionSerializer = parentSerializerClass.extend({
-            modelNameFromPayloadKey: function(/* key */) {
-              return this._super(partialExtensionSerializerName);
-            }
-          });
+          let parentSerializer = this.serializerFor(factoryName);
+          let parentSerializerConstructor = parentSerializer.constructor;
+          let serializerOverrides = this._overridesForPartialSerializer(parentSerializer,
+            partialName, partialExtensionSerializerName);
+          let mixins = this._mixinsForPartialSerializer(parentSerializer, partialName);
+          let partialExtensionSerializer = parentSerializerConstructor.extend(...mixins,
+            serializerOverrides);
           _registerDependency(this, dependencyName, partialExtensionSerializer);
         }
       }
     });
+  },
+
+  _overridesForPartialSerializer(parentSerializer, partialName, partialExtensionSerializerName) {
+    let serializerOverrides = {};
+    let externalOverrides = parentSerializer.partialSerializersExtensions &&
+      parentSerializer.partialSerializersExtensions[partialName] || {};
+    merge(serializerOverrides, externalOverrides);
+    merge(serializerOverrides, {
+      modelNameFromPayloadKey() {
+        return this._super(partialExtensionSerializerName);
+      }
+    });
+    return serializerOverrides;
+  },
+
+  _mixinsForPartialSerializer(parentSerializer, partialName) {
+    return parentSerializer.partialSerializersMixins &&
+      parentSerializer.partialSerializersMixins[partialName] || [];
   }
 });
 

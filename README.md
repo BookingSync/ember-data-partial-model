@@ -127,6 +127,52 @@ export default Mixin.create(baseSerializerMixin, {
 });
 ```
 
+## Extending partial serializers
+You can provide extensions and list of mixins to be applied for partial serializers. If you defined `extended` partial in `user` model like this:
+
+``` js
+// app/models/user.js
+
+import { PartialModel, partial } from 'ember-data-partial-model/utils/model';
+const { attr } = DS;
+
+export default PartialModel.extend({
+  name: attr(),
+  extended: partial('user', 'extended', {
+    twitter: attr(),
+    clients: hasMany('client', { async: false })
+  })
+});
+```
+
+add you want to make `clients` relationship embedded and serialize all `clients` records when serializing `user` model, you could customize `user` serializer the following way:
+
+``` js
+// app/serializers/user.js
+
+import Ember from 'ember';
+import DS from 'ember-data';
+import ApplicationSerializer from './application';
+
+const { EmbeddedRecordsMixin } = DS;
+const { Mixin } = Ember;
+
+export default ApplicationSerializer.extend({
+  partialSerializersExtensions: {
+    extended: {
+      attrs: {
+        clients: { embedded: 'always' }
+      }
+    }
+  },
+
+  partialSerializersMixins: {
+    extended: [EmbeddedRecordsMixin]
+  }
+});
+```
+
+All extensions defined inside `partialSerializersExtensions` will be copied for given partial and all mixins  defined in `partialSerializersMixins` will be used when defining partial serializer.
 
 ## Installation
 

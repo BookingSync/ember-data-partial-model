@@ -36,7 +36,7 @@ test('PartialModel has reflections on partialDescriptors', function(assert) {
   assert.equal(partialDescriptorForExtended.type, 'user-extended');
   assert.equal(partialDescriptorForExtended.isRelationship, true);
   assert.equal(partialDescriptorForExtended.kind, 'belongsTo');
-  assert.deepEqual(Object.keys(partialDescriptorForExtended.options.classHash), ['twitter']);
+  assert.deepEqual(Object.keys(partialDescriptorForExtended.options.classHash), ['twitter', 'clients']);
 });
 
 test('PartialModel has defined aliases for setting / gettings properties in partials', function(assert) {
@@ -95,4 +95,3 @@ test('properties from partial models are always loaded before save', function(as
     assert.equal(JSON.parse(updateRequest.requestBody).user.twitter, 'sebgrosjean');
   });
 });
-
