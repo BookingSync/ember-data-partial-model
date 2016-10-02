@@ -2,6 +2,8 @@
 
 ## master
 
+## 0.4.0
+
 Update notes:
 
   - None
